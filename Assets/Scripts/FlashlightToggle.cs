@@ -3,52 +3,39 @@ using UnityEngine.InputSystem;
 
 public class FlashlightToggle : MonoBehaviour
 {
-    [Header("References")]
     [SerializeField] private Light flashlight;
-
-    [Header("Input")]
     [SerializeField] private InputActionReference flashlightAction;
 
-    [Header("Settings")]
-    [SerializeField] private bool startOn = true;
-
-    private bool isOn;
+    [Header("Sound")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip toggleSound;
 
     private void Awake()
     {
         if (flashlight == null)
             flashlight = GetComponent<Light>();
 
-        isOn = startOn;
-
-        if (flashlight != null)
-            flashlight.enabled = isOn;
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
     }
 
     private void OnEnable()
     {
-        if (flashlightAction != null && flashlightAction.action != null)
-        {
-            flashlightAction.action.Enable();
-            flashlightAction.action.performed += ToggleFlashlight;
-        }
+        flashlightAction.action.Enable();
+        flashlightAction.action.performed += ToggleFlashlight;
     }
 
     private void OnDisable()
     {
-        if (flashlightAction != null && flashlightAction.action != null)
-        {
-            flashlightAction.action.performed -= ToggleFlashlight;
-            flashlightAction.action.Disable();
-        }
+        flashlightAction.action.performed -= ToggleFlashlight;
+        flashlightAction.action.Disable();
     }
 
     private void ToggleFlashlight(InputAction.CallbackContext context)
     {
-        if (flashlight == null)
-            return;
+        flashlight.enabled = !flashlight.enabled;
 
-        isOn = !isOn;
-        flashlight.enabled = isOn;
+        if (audioSource != null && toggleSound != null)
+            audioSource.PlayOneShot(toggleSound);
     }
 }

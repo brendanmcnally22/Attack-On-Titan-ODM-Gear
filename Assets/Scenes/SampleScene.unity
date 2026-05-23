@@ -970,7 +970,8 @@ Transform:
   m_LocalPosition: {x: 0.020000458, y: 0.45000005, z: -0.1269989}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1856769150}
   m_Father: {fileID: 1879263255}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &330585547
@@ -1415,7 +1416,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1689397128}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &862669931
 GameObject:
@@ -3155,7 +3156,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 410087041}
-  - {fileID: 832575519}
   m_Father: {fileID: 1622317989}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1729602307
@@ -3410,11 +3410,11 @@ Transform:
   m_GameObject: {fileID: 1856769149}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.3399999, z: 0}
+  m_LocalPosition: {x: -0.020000458, y: -0.11000013, z: 0.1269989}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1879263255}
+  m_Father: {fileID: 330585546}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!114 &1856769151
 MonoBehaviour:
@@ -3430,7 +3430,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FlashlightToggle
   flashlight: {fileID: 1856769153}
   flashlightAction: {fileID: 214722962}
-  startOn: 1
+  audioSource: {fileID: 0}
+  toggleSound: {fileID: 0}
 --- !u!114 &1856769152
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3472,7 +3473,7 @@ Light:
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 90
-  m_Range: 7.884613
+  m_Range: 17.95549
   m_SpotAngle: 27.194818
   m_InnerSpotAngle: 20.85468
   m_CookieSize2D: {x: 0.5, y: 0.5}
@@ -3555,7 +3556,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 330585546}
-  - {fileID: 1856769150}
   m_Father: {fileID: 81719953}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1988411019
@@ -3788,3 +3788,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 1622317989}
   - {fileID: 81719953}
+  - {fileID: 832575519}
