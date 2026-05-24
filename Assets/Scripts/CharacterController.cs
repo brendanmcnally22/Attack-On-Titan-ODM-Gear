@@ -22,12 +22,15 @@ public class SimpleFPSController : MonoBehaviour
     [SerializeField] private AudioClip[] footstepClips;
     [SerializeField] private float stepRate = 0.45f;
 
+    [Header("Inventory")]
+    [SerializeField] private InventoryRadialUI inventoryUI;
+
     [Header("Battery Pickup")]
     [SerializeField] private FlashlightBattery flashlightBattery;
     [SerializeField] private float pickupRange = 2f;
     [SerializeField] private LayerMask pickupLayers;
 
-    [Header("Pickup UI")]
+    [Header("Pickup Prompt")]
     [SerializeField] private GameObject pickupCanvas;
     [SerializeField] private TMP_Text pickupText;
     [SerializeField] private string pickupMessage = "Press E to pick up battery";
@@ -58,34 +61,34 @@ public class SimpleFPSController : MonoBehaviour
         EnableAction(lookAction);
         EnableAction(interactAction);
 
-        if (interactAction != null && interactAction.action != null)
-            interactAction.action.performed += TryPickup;
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+        UnityEngine.Cursor.visible = false;
     }
 
     private void OnDisable()
     {
-        if (interactAction != null && interactAction.action != null)
-            interactAction.action.performed -= TryPickup;
-
         DisableAction(moveAction);
         DisableAction(lookAction);
         DisableAction(interactAction);
 
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        UnityEngine.Cursor.lockState = CursorLockMode.None;
+        UnityEngine.Cursor.visible = true;
     }
 
     private void Update()
     {
+        if (inventoryUI != null && inventoryUI.IsOpen())
+            return;
+
         Move();
         Look();
         Footsteps();
 
         FindNearbyBattery();
         UpdatePickupUI();
+
+        if (WasPressed(interactAction))
+            TryPickup();
     }
 
     private void Move()
@@ -180,21 +183,14 @@ public class SimpleFPSController : MonoBehaviour
         if (pickupText != null && canPickup)
             pickupText.text = pickupMessage;
     }
-    private void TryPickup(InputAction.CallbackContext context)
+
+    private void TryPickup()
     {
         if (currentBattery == null)
-        {
-            Debug.Log("No battery nearby.");
             return;
-        }
 
         if (flashlightBattery == null)
-        {
-            Debug.LogWarning("No FlashlightBattery assigned on player controller.");
             return;
-        }
-
-        Debug.Log("Picking up battery: " + currentBattery.name);
 
         flashlightBattery.AddBattery(currentBattery.BatteryAmount);
 
@@ -202,7 +198,6 @@ public class SimpleFPSController : MonoBehaviour
             AudioSource.PlayClipAtPoint(currentBattery.PickupSound, currentBattery.transform.position);
 
         currentBattery.DestroyBattery();
-
         currentBattery = null;
 
         if (pickupCanvas != null)
@@ -215,6 +210,13 @@ public class SimpleFPSController : MonoBehaviour
             return Vector2.zero;
 
         return actionReference.action.ReadValue<Vector2>();
+    }
+
+    private bool WasPressed(InputActionReference actionReference)
+    {
+        return actionReference != null &&
+               actionReference.action != null &&
+               actionReference.action.WasPressedThisFrame();
     }
 
     private void EnableAction(InputActionReference actionReference)

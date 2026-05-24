@@ -1,0 +1,43 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="inventory-root" class="inventory-root">
+        <ui:VisualElement name="inventory-wheel" class="inventory-wheel">
+
+            <ui:VisualElement name="slot-top" class="inventory-slot slot-top">
+                <ui:Label text="1" class="slot-number" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="slot-top-right" class="inventory-slot slot-top-right">
+                <ui:Label text="2" class="slot-number" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="slot-right" class="inventory-slot slot-right">
+                <ui:Label text="3" class="slot-number" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="slot-bottom-right" class="inventory-slot slot-bottom-right">
+                <ui:Label text="4" class="slot-number" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="slot-bottom" class="inventory-slot slot-bottom">
+                <ui:Label text="5" class="slot-number" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="slot-bottom-left" class="inventory-slot slot-bottom-left">
+                <ui:Label text="6" class="slot-number" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="slot-left" class="inventory-slot slot-left">
+                <ui:Label text="7" class="slot-number" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="slot-top-left" class="inventory-slot slot-top-left">
+                <ui:Label text="8" class="slot-number" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="inventory-center" class="inventory-center">
+                <ui:Label text="ITEMS" class="center-text" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
