@@ -11,7 +11,9 @@ GameObject:
   - component: {fileID: 6619324095902809091}
   - component: {fileID: 7274230716477963869}
   - component: {fileID: 8216011339686203631}
-  m_Layer: 0
+  - component: {fileID: 3431131366938783086}
+  - component: {fileID: 993872347580147981}
+  m_Layer: 3
   m_Name: Key
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -90,3 +92,43 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &3431131366938783086
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7280514523521463701}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.23217773, y: 0.088945605, z: 0.15222277}
+  m_Center: {x: -0.034667015, y: 0.00006375836, z: 0.008441478}
+--- !u!114 &993872347580147981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7280514523521463701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7232e68d51289064c93dd1d78ff6b319, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PickupItem
+  pickupType: 1
+  itemName: Silver Key
+  pickupMessage: Hold E to Pick up
+  batteryAmount: 35
+  keyID: DefaultKey
+  pickupSound: {fileID: 8300000, guid: 064910979b6274a4680a0cd09c6eb28b, type: 3}
+  objectToDestroy: {fileID: 7280514523521463701}

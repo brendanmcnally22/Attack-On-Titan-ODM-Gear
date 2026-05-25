@@ -25,7 +25,7 @@ public class SimpleFPSController : MonoBehaviour
     [Header("Inventory")]
     [SerializeField] private InventoryRadialUI inventoryUI;
 
-    [Header("Battery Pickup")]
+    [Header("Pickup")]
     [SerializeField] private FlashlightBattery flashlightBattery;
     [SerializeField] private float pickupRange = 2f;
     [SerializeField] private LayerMask pickupLayers;
@@ -33,13 +33,15 @@ public class SimpleFPSController : MonoBehaviour
     [Header("Pickup Prompt")]
     [SerializeField] private GameObject pickupCanvas;
     [SerializeField] private TMP_Text pickupText;
-    [SerializeField] private string pickupMessage = "Press E to pick up battery";
 
     private CharacterController controller;
     private float cameraPitch;
     private float stepTimer;
 
-    private BatteryItem currentBattery;
+    private PickupItem currentPickup;
+
+    private int batteriesCollected;
+    private int keysCollected;
 
     private void Awake()
     {
@@ -84,7 +86,7 @@ public class SimpleFPSController : MonoBehaviour
         Look();
         Footsteps();
 
-        FindNearbyBattery();
+        FindNearbyPickup();
         UpdatePickupUI();
 
         if (WasPressed(interactAction))
@@ -148,9 +150,9 @@ public class SimpleFPSController : MonoBehaviour
         footstepSource.PlayOneShot(footstepClips[randomIndex]);
     }
 
-    private void FindNearbyBattery()
+    private void FindNearbyPickup()
     {
-        currentBattery = null;
+        currentPickup = null;
 
         Collider[] hits = Physics.OverlapSphere(transform.position, pickupRange, pickupLayers);
 
@@ -158,50 +160,70 @@ public class SimpleFPSController : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            BatteryItem battery = hits[i].GetComponentInParent<BatteryItem>();
+            PickupItem pickup = hits[i].GetComponentInParent<PickupItem>();
 
-            if (battery == null)
+            if (pickup == null)
                 continue;
 
-            float distance = Vector3.Distance(transform.position, battery.transform.position);
+            float distance = Vector3.Distance(transform.position, pickup.transform.position);
 
             if (distance < closestDistance)
             {
                 closestDistance = distance;
-                currentBattery = battery;
+                currentPickup = pickup;
             }
         }
     }
 
     private void UpdatePickupUI()
     {
-        bool canPickup = currentBattery != null;
+        bool canPickup = currentPickup != null;
 
         if (pickupCanvas != null)
             pickupCanvas.SetActive(canPickup);
 
         if (pickupText != null && canPickup)
-            pickupText.text = pickupMessage;
+            pickupText.text = currentPickup.PickupMessage;
     }
 
     private void TryPickup()
     {
-        if (currentBattery == null)
+        if (currentPickup == null)
             return;
 
-        if (flashlightBattery == null)
-            return;
+        HandlePickupEffect(currentPickup);
 
-        flashlightBattery.AddBattery(currentBattery.BatteryAmount);
+        if (currentPickup.PickupSound != null)
+            AudioSource.PlayClipAtPoint(currentPickup.PickupSound, currentPickup.transform.position);
 
-        if (currentBattery.PickupSound != null)
-            AudioSource.PlayClipAtPoint(currentBattery.PickupSound, currentBattery.transform.position);
-
-        currentBattery.DestroyBattery();
-        currentBattery = null;
+        currentPickup.DestroyPickup();
+        currentPickup = null;
 
         if (pickupCanvas != null)
             pickupCanvas.SetActive(false);
+    }
+
+    private void HandlePickupEffect(PickupItem pickup)
+    {
+        switch (pickup.PickupType)
+        {
+            case PickupType.Battery:
+                if (flashlightBattery != null)
+                    flashlightBattery.AddBattery(pickup.BatteryAmount);
+
+                batteriesCollected++;
+                Debug.Log("Picked up battery. Total batteries: " + batteriesCollected);
+                break;
+
+            case PickupType.Key:
+                keysCollected++;
+                Debug.Log("Picked up key: " + pickup.KeyID + ". Total keys: " + keysCollected);
+                break;
+
+            case PickupType.GenericItem:
+                Debug.Log("Picked up item: " + pickup.ItemName);
+                break;
+        }
     }
 
     private Vector2 ReadVector2(InputActionReference actionReference)
