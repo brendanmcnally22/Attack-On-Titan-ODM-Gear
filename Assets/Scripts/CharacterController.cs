@@ -22,11 +22,13 @@ public class SimpleFPSController : MonoBehaviour
     [SerializeField] private AudioClip[] footstepClips;
     [SerializeField] private float stepRate = 0.45f;
 
-    [Header("Inventory")]
+    [Header("Systems")]
+    [SerializeField] private PlayerInventory playerInventory;
+    [SerializeField] private PlayerHealth playerHealth;
     [SerializeField] private InventoryRadialUI inventoryUI;
+    [SerializeField] private FlashlightBattery flashlightBattery;
 
     [Header("Pickup")]
-    [SerializeField] private FlashlightBattery flashlightBattery;
     [SerializeField] private float pickupRange = 2f;
     [SerializeField] private LayerMask pickupLayers;
 
@@ -35,13 +37,11 @@ public class SimpleFPSController : MonoBehaviour
     [SerializeField] private TMP_Text pickupText;
 
     private CharacterController controller;
-    private float cameraPitch;
-    private float stepTimer;
-
     private PickupItem currentPickup;
 
-    private int batteriesCollected;
-    private int keysCollected;
+    private float cameraPitch;
+    private float stepTimer;
+    private bool controlsEnabled = true;
 
     private void Awake()
     {
@@ -49,6 +49,15 @@ public class SimpleFPSController : MonoBehaviour
 
         if (footstepSource == null)
             footstepSource = GetComponent<AudioSource>();
+
+        if (playerInventory == null)
+            playerInventory = GetComponent<PlayerInventory>();
+
+        if (playerHealth == null)
+            playerHealth = GetComponent<PlayerHealth>();
+
+        if (inventoryUI == null)
+            inventoryUI = FindFirstObjectByType<InventoryRadialUI>();
 
         if (flashlightBattery == null)
             flashlightBattery = FindFirstObjectByType<FlashlightBattery>();
@@ -63,8 +72,7 @@ public class SimpleFPSController : MonoBehaviour
         EnableAction(lookAction);
         EnableAction(interactAction);
 
-        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
-        UnityEngine.Cursor.visible = false;
+        LockCursor();
     }
 
     private void OnDisable()
@@ -73,21 +81,23 @@ public class SimpleFPSController : MonoBehaviour
         DisableAction(lookAction);
         DisableAction(interactAction);
 
-        UnityEngine.Cursor.lockState = CursorLockMode.None;
-        UnityEngine.Cursor.visible = true;
+        UnlockCursor();
     }
 
     private void Update()
     {
+        if (!controlsEnabled)
+            return;
+
         if (inventoryUI != null && inventoryUI.IsOpen())
             return;
 
         Move();
         Look();
-        Footsteps();
+        HandleFootsteps();
 
         FindNearbyPickup();
-        UpdatePickupUI();
+        UpdatePickupPrompt();
 
         if (WasPressed(interactAction))
             TryPickup();
@@ -119,7 +129,7 @@ public class SimpleFPSController : MonoBehaviour
         playerCamera.localRotation = Quaternion.Euler(cameraPitch, 0f, 0f);
     }
 
-    private void Footsteps()
+    private void HandleFootsteps()
     {
         Vector2 input = ReadVector2(moveAction);
 
@@ -175,14 +185,14 @@ public class SimpleFPSController : MonoBehaviour
         }
     }
 
-    private void UpdatePickupUI()
+    private void UpdatePickupPrompt()
     {
-        bool canPickup = currentPickup != null;
+        bool hasPickup = currentPickup != null;
 
         if (pickupCanvas != null)
-            pickupCanvas.SetActive(canPickup);
+            pickupCanvas.SetActive(hasPickup);
 
-        if (pickupText != null && canPickup)
+        if (pickupText != null && hasPickup)
             pickupText.text = currentPickup.PickupMessage;
     }
 
@@ -192,6 +202,9 @@ public class SimpleFPSController : MonoBehaviour
             return;
 
         HandlePickupEffect(currentPickup);
+
+        if (currentPickup.AddToInventory && inventoryUI != null)
+            inventoryUI.AddItemText(currentPickup.InventoryText);
 
         if (currentPickup.PickupSound != null)
             AudioSource.PlayClipAtPoint(currentPickup.PickupSound, currentPickup.transform.position);
@@ -211,19 +224,43 @@ public class SimpleFPSController : MonoBehaviour
                 if (flashlightBattery != null)
                     flashlightBattery.AddBattery(pickup.BatteryAmount);
 
-                batteriesCollected++;
-                Debug.Log("Picked up battery. Total batteries: " + batteriesCollected);
+                if (playerInventory != null)
+                    playerInventory.AddBatteryPickup();
+
+                Debug.Log("Picked up battery.");
                 break;
 
             case PickupType.Key:
-                keysCollected++;
-                Debug.Log("Picked up key: " + pickup.KeyID + ". Total keys: " + keysCollected);
+                if (playerInventory != null)
+                    playerInventory.AddKey(pickup.KeyID);
+
+                Debug.Log("Picked up key: " + pickup.KeyID);
+                break;
+
+            case PickupType.Bandage:
+                if (playerInventory != null)
+                    playerInventory.AddBandage();
+
+                Debug.Log("Picked up bandage.");
                 break;
 
             case PickupType.GenericItem:
                 Debug.Log("Picked up item: " + pickup.ItemName);
                 break;
         }
+    }
+
+    public void SetControlsEnabled(bool enabled)
+    {
+        controlsEnabled = enabled;
+
+        if (pickupCanvas != null)
+            pickupCanvas.SetActive(false);
+
+        if (enabled)
+            LockCursor();
+        else
+            UnlockCursor();
     }
 
     private Vector2 ReadVector2(InputActionReference actionReference)
@@ -251,6 +288,18 @@ public class SimpleFPSController : MonoBehaviour
     {
         if (actionReference != null && actionReference.action != null)
             actionReference.action.Disable();
+    }
+
+    private void LockCursor()
+    {
+        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+        UnityEngine.Cursor.visible = false;
+    }
+
+    private void UnlockCursor()
+    {
+        UnityEngine.Cursor.lockState = CursorLockMode.None;
+        UnityEngine.Cursor.visible = true;
     }
 
     private void OnDrawGizmosSelected()

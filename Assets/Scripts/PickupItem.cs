@@ -7,23 +7,33 @@ public class PickupItem : MonoBehaviour
     [SerializeField] private string itemName = "Item";
     [SerializeField] private string pickupMessage = "Press E to pick up";
 
-    [Header("Battery Settings")]
+    [Header("Inventory")]
+    [SerializeField] private bool addToInventory = true;
+    [SerializeField] private string inventoryText = "ITEM";
+
+    [Header("Battery")]
     [SerializeField] private float batteryAmount = 35f;
 
-    [Header("Key Settings")]
+    [Header("Key")]
     [SerializeField] private string keyID = "DefaultKey";
+
+    [Header("Bandage")]
+    [SerializeField] private int bandageHealAmount = 25;
 
     [Header("Sound")]
     [SerializeField] private AudioClip pickupSound;
 
-    [Header("Destroy Target")]
+    [Header("Destroy")]
     [SerializeField] private GameObject objectToDestroy;
 
     public PickupType PickupType => pickupType;
     public string ItemName => itemName;
     public string PickupMessage => pickupMessage;
+    public bool AddToInventory => addToInventory;
+    public string InventoryText => inventoryText;
     public float BatteryAmount => batteryAmount;
     public string KeyID => keyID;
+    public int BandageHealAmount => bandageHealAmount;
     public AudioClip PickupSound => pickupSound;
 
     public void DestroyPickup()
