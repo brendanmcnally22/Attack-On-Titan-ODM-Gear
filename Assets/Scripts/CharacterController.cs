@@ -17,6 +17,10 @@ public class SimpleFPSController : MonoBehaviour
     [SerializeField] private float moveSpeed = 4f;
     [SerializeField] private float lookSensitivity = 0.05f;
 
+    [Header("Gravity")]
+    [SerializeField] private float gravity = -20f;
+    [SerializeField] private float groundedGravity = -2f;
+
     [Header("Footsteps")]
     [SerializeField] private AudioSource footstepSource;
     [SerializeField] private AudioClip[] footstepClips;
@@ -41,6 +45,8 @@ public class SimpleFPSController : MonoBehaviour
 
     private float cameraPitch;
     private float stepTimer;
+    private float verticalVelocity;
+
     private bool controlsEnabled = true;
 
     private void Awake()
@@ -87,10 +93,20 @@ public class SimpleFPSController : MonoBehaviour
     private void Update()
     {
         if (!controlsEnabled)
+        {
+            ApplyGravityOnly();
             return;
+        }
 
         if (inventoryUI != null && inventoryUI.IsOpen())
+        {
+            ApplyGravityOnly();
+
+            if (pickupCanvas != null)
+                pickupCanvas.SetActive(false);
+
             return;
+        }
 
         Move();
         Look();
@@ -107,8 +123,35 @@ public class SimpleFPSController : MonoBehaviour
     {
         Vector2 input = ReadVector2(moveAction);
 
-        Vector3 move = transform.right * input.x + transform.forward * input.y;
-        controller.Move(move * moveSpeed * Time.deltaTime);
+        Vector3 horizontalMove = transform.right * input.x + transform.forward * input.y;
+        horizontalMove *= moveSpeed;
+
+        HandleGravity();
+
+        Vector3 finalMove = horizontalMove;
+        finalMove.y = verticalVelocity;
+
+        controller.Move(finalMove * Time.deltaTime);
+    }
+
+    private void ApplyGravityOnly()
+    {
+        HandleGravity();
+
+        Vector3 gravityMove = new Vector3(0f, verticalVelocity, 0f);
+        controller.Move(gravityMove * Time.deltaTime);
+    }
+
+    private void HandleGravity()
+    {
+        if (controller.isGrounded && verticalVelocity < 0f)
+        {
+            verticalVelocity = groundedGravity;
+        }
+        else
+        {
+            verticalVelocity += gravity * Time.deltaTime;
+        }
     }
 
     private void Look()
@@ -133,7 +176,7 @@ public class SimpleFPSController : MonoBehaviour
     {
         Vector2 input = ReadVector2(moveAction);
 
-        if (input.magnitude < 0.1f)
+        if (input.magnitude < 0.1f || !controller.isGrounded)
         {
             stepTimer = 0f;
             return;
@@ -204,7 +247,7 @@ public class SimpleFPSController : MonoBehaviour
         HandlePickupEffect(currentPickup);
 
         if (currentPickup.AddToInventory && inventoryUI != null)
-            inventoryUI.AddItemText(currentPickup.InventoryText);
+            inventoryUI.AddPickupItem(currentPickup);
 
         if (currentPickup.PickupSound != null)
             AudioSource.PlayClipAtPoint(currentPickup.PickupSound, currentPickup.transform.position);
@@ -221,13 +264,10 @@ public class SimpleFPSController : MonoBehaviour
         switch (pickup.PickupType)
         {
             case PickupType.Battery:
-                if (flashlightBattery != null)
-                    flashlightBattery.AddBattery(pickup.BatteryAmount);
-
                 if (playerInventory != null)
-                    playerInventory.AddBatteryPickup();
+                    playerInventory.AddStoredBattery();
 
-                Debug.Log("Picked up battery.");
+                Debug.Log("Stored battery in inventory.");
                 break;
 
             case PickupType.Key:
@@ -241,7 +281,7 @@ public class SimpleFPSController : MonoBehaviour
                 if (playerInventory != null)
                     playerInventory.AddBandage();
 
-                Debug.Log("Picked up bandage.");
+                Debug.Log("Stored bandage in inventory.");
                 break;
 
             case PickupType.GenericItem:

@@ -5,7 +5,7 @@ public class PlayerInventory : MonoBehaviour
 {
     private readonly HashSet<string> keys = new HashSet<string>();
 
-    public int BatteryPickupsCollected { get; private set; }
+    public int StoredBatteryCount { get; private set; }
     public int BandageCount { get; private set; }
 
     public void AddKey(string keyID)
@@ -25,10 +25,20 @@ public class PlayerInventory : MonoBehaviour
         return keys.Contains(keyID);
     }
 
-    public void AddBatteryPickup()
+    public void AddStoredBattery()
     {
-        BatteryPickupsCollected++;
-        Debug.Log("Battery pickups collected: " + BatteryPickupsCollected);
+        StoredBatteryCount++;
+        Debug.Log("Stored batteries: " + StoredBatteryCount);
+    }
+
+    public bool UseStoredBattery()
+    {
+        if (StoredBatteryCount <= 0)
+            return false;
+
+        StoredBatteryCount--;
+        Debug.Log("Used stored battery. Batteries left: " + StoredBatteryCount);
+        return true;
     }
 
     public void AddBandage()

@@ -10,6 +10,7 @@ public class PickupItem : MonoBehaviour
     [Header("Inventory")]
     [SerializeField] private bool addToInventory = true;
     [SerializeField] private string inventoryText = "ITEM";
+    [SerializeField] private Texture2D inventoryIcon;
 
     [Header("Battery")]
     [SerializeField] private float batteryAmount = 35f;
@@ -31,6 +32,7 @@ public class PickupItem : MonoBehaviour
     public string PickupMessage => pickupMessage;
     public bool AddToInventory => addToInventory;
     public string InventoryText => inventoryText;
+    public Texture2D InventoryIcon => inventoryIcon;
     public float BatteryAmount => batteryAmount;
     public string KeyID => keyID;
     public int BandageHealAmount => bandageHealAmount;
